@@ -80,7 +80,7 @@ def index():
         source = "GET"
 
     if combined_input.strip():
-        ip = request.remote_addr
+        ip = ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
         user_agent = request.headers.get("User-Agent")
         prediction = predict_attack_type(combined_input)
         log_request(ip, user_agent, combined_input, prediction, source)
