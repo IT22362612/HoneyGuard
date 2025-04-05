@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🛡️ Admin Dashboard</h2>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+    </div>
+
+    <div class="mb-3">
+        <a href="{{ url_for('delete_last') }}" class="btn btn-warning">🗑️ Delete Last Log</a>
+        <a href="{{ url_for('delete_all') }}" class="btn btn-danger">❌ Delete All Logs</a>
+        <a href="{{ url_for('export_csv') }}" class="btn btn-success">📥 Export Logs to CSV</a>
+    </div>
+
+    {% if logs|length > 0 %}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <canvas id="typeChart"></canvas>
+        </div>
+        <div class="col-md-6">
+            <canvas id="timelineChart"></canvas>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Timestamp</th>
+                    <th>IP</th>
+                    <th>Reputation</th>
+                    <th>Malicious Votes</th>
+                    <th>User Agent</th>
+                    <th>Input</th>
+                    <th>Prediction</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp }}</td>
+                    <td>{{ log.ip }}</td>
+                    <td>{{ log.vt_reputation or 'N/A' }}</td>
+                    <td>{{ log.vt_malicious_votes or 'N/A' }}</td>
+                    <td>{{ log.user_agent }}</td>
+                    <td>{{ log.input }}</td>
+                    <td>{{ log.prediction }}</td>
+                    <td>{{ log.source }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if logs|length > 0 %}
+    <script>
+        // Data passed from Flask
+        const typeLabels = {{ attack_counts.keys() | list | tojson }};
+        const typeValues = {{ attack_counts.values() | list | tojson }};
+        const timeLabels = {{ timeline_counts.keys() | list | tojson }};
+        const timeValues = {{ timeline_counts.values() | list | tojson }};
+
+        // ---- Render Pie Chart (Attack Types) ----
+        const ctxType = document.getElementById("typeChart").getContext("2d");
+        new Chart(ctxType, {
+            type: "pie",
+            data: {
+                labels: typeLabels,
+                datasets: [{
+                    label: "Attack Types",
+                    data: typeValues,
+                    backgroundColor: [
+                        "#dc3545", "#ffc107", "#0d6efd", "#198754",
+                        "#6f42c1", "#fd7e14", "#20c997"
+                    ],
+                }],
+            }
+        });
+
+        // ---- Render Line Chart (Timeline) ----
+        const ctxTime = document.getElementById("timelineChart").getContext("2d");
+        new Chart(ctxTime, {
+            type: "line",
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: "Attacks per Day",
+                    data: timeValues,
+                    borderColor: "#0d6efd",
+                    backgroundColor: "rgba(13,110,253,0.2)",
+                    fill: true,
+                    tension: 0.3,
+                }]
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
