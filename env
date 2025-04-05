@@ -1,0 +1,3 @@
+MONGO_URI=mongodb+srv://induwaracyber120:iF7DnDsc3Wj1G4IU@cluster0.1cvx6.mongodb.net/?retryWrites=true&w=majority&tls=true&tlsAllowInvalidCertificates=true
+SECRET_KEY=your_secret_key
+VT_API_KEY=9ee30865d596c3b6aa5bdf3fb75713f03d4a06f44c54506bf9e49b4b9e1134d9
