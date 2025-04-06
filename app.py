@@ -32,7 +32,7 @@ ADMIN_CREDENTIALS = {'username': 'admin', 'password': 'admin123'}
 def predict_attack_type(input_data):
     X_vect = vectorizer.transform([input_data])
     return model.predict(X_vect)[0]
-
+'''
 def check_ip_virustotal(ip):
     try:
         url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
@@ -50,6 +50,30 @@ def check_ip_virustotal(ip):
             }
     except Exception as e:
         print("VirusTotal API error:", e)
+    return None
+'''
+def check_ip_virustotal(ip):
+    try:
+        url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
+        headers = {
+            "x-apikey": os.getenv("VT_API_KEY")
+        }
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            attributes = data["data"]["attributes"]
+            reputation = attributes.get("reputation", 0)
+            malicious_votes = attributes.get("total_votes", {}).get("malicious", 0)
+            country = attributes.get("country", "Unknown")
+            return {
+                "reputation": reputation,
+                "malicious_votes": malicious_votes,
+                "country": country
+            }
+        else:
+            print("VirusTotal API error:", response.status_code, response.text)
+    except Exception as e:
+        print("VirusTotal Exception:", e)
     return None
 
 def log_request(ip, user_agent, input_data, prediction, source):
